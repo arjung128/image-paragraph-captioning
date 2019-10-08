@@ -1,6 +1,6 @@
 ## Text Embedding Bank Module for Detailed Image Paragraph Captioning
 
-This repository includes a PyTorch implementation of [Text Embedding Bank Module for Detailed Image Paragraph Caption](https://openreview.net/forum?id=Sygt9yBtPS). Our code is based on Ruotian Luo's implementation of [Self-critical Sequence Training for Image Captioning](https://arxiv.org/abs/1612.00563), available [here.](https://github.com/ruotianluo/self-critical.pytorch), and Luke Melas-Kyriazi's implementation of [Training for Diversity in Image Paragraph Captioning](https://www.aclweb.org/anthology/D18-1084.pdf), available [here.](https://github.com/lukemelas/image-paragraph-captioning) 
+This repository includes a PyTorch implementation of [Text Embedding Bank Module for Detailed Image Paragraph Captioning](https://openreview.net/forum?id=Sygt9yBtPS). Our code is based on Ruotian Luo's implementation of [Self-critical Sequence Training for Image Captioning](https://arxiv.org/abs/1612.00563), available [here.](https://github.com/ruotianluo/self-critical.pytorch), and Luke Melas-Kyriazi's implementation of [Training for Diversity in Image Paragraph Captioning](https://www.aclweb.org/anthology/D18-1084.pdf), available [here.](https://github.com/lukemelas/image-paragraph-captioning) 
 
 ### Requirements
 * Python 2.7 (because coco-caption does not support Python 3)
