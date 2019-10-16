@@ -32,9 +32,6 @@ def add_summary_value(writer, key, value, iteration):
         writer.add_scalar(key, value, iteration)
 
 def train(opt):
-
-    # print(opt.alpha)
-    print(opt)
     
     # Load data
     loader = DataLoader(opt)
