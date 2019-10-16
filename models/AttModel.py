@@ -478,79 +478,22 @@ class TopDownCore(nn.Module):
         state = (torch.stack([h_att, h_lang]), torch.stack([c_att, c_lang]))
 
         return output, state
-    
-# class vectorCore(nn.Module):
-#     def __init__(self, opt, use_maxout=False):
-#         super(vectorCore, self).__init__()
-        
-#         # att_feats: (41, 2048) --> (2048)
-#         # att_fc = nn.Linear((41, 2048), 2048)
-#         # att_fc = nn.Linear(41, 1)
-#         att_fc = nn.Linear(41*2048, 2048)
-        
-#         # (2048, 2) --> (2048)
-#         # output_fc = nn.Linear((2048, 2), 2048)
-#         # output_fc = nn.Linear(2, 1)
-#         output_fc = nn.Linear(2*2048, 2048)
-        
-#     def forward(self, att_feats, fc_feats):
-        
-#         att_feats_reshaped = self.att_fc(att_feats)
-        
-#         # concat att_feats and fc_feats to (2048, 2)
-#         concat = torch.cat((att_feats_reshaped, fc_feats), dim=0)
-        
-#         # output
-#         output = self.output_fc(concat)
-        
-#         return output
 
 class vectorCore(nn.Module):
     def __init__(self):
         super(vectorCore, self).__init__()
         
-        # self.att_feats_shape = att_feats_shape
-        # 
-        # print(self.att_feats_shape)
-        
-        # att_feats: (41, 2048) --> (2048)
-        # att_fc = nn.Linear((41, 2048), 2048)
-        # # self.att_fc = nn.Linear(41, 1)
-        # self.att_fc = nn.Linear(41*2048, 2048)
-        # self.att_fc = nn.Linear(self.att_feats_shape, 1)
         self.att_fc = nn.Linear(83, 1)
-        
-        # (2048, 2) --> (2048)
-        # output_fc = nn.Linear((2048, 2), 2048)
         self.output_fc = nn.Linear(2, 1)
-        # self.output_fc = nn.Linear(2*2048, 2048)
-        
-        # (batch_size, 2048) --> (batch_size, 512)
         self.sf_fc = nn.Linear(2048, 512)
         
     def forward(self, att_feats, fc_feats):
         
-        # print(att_feats.shape)
-        # print("att_feats: ", att_feats.shape)
-        # print("fc_feats: ", fc_feats.shape)
         att_feats_reshaped = self.att_fc(att_feats)
-        # print("att_feats_reshape: ", att_feats_reshaped.shape)
-        
-        # att_fc = nn.Linear(att_feats.shape[2], 1)
-        # print(att_feats.shape[2])
-        # att_feats_reshaped = att_fc(att_feats.cuda())
-        
         att_feats_reshaped = att_feats_reshaped.squeeze()
-        # print("att_feats_reshape (squeezed): ", att_feats_reshaped.shape)
-        
-        # concat att_feats and fc_feats to (2048, 2)
-        # print(att_feats_reshaped.shape)
-        # print(fc_feats.shape)
-        # concat = torch.cat((att_feats_reshaped, fc_feats), dim=0)
+
         stack = torch.stack([att_feats_reshaped, fc_feats], dim=2)
-        # print("stack: ", stack.shape)
         
-        # output
         output = self.output_fc(stack)
         output = output.squeeze()
         
@@ -785,12 +728,6 @@ class TopDownModel(AttModel):
         super(TopDownModel, self).__init__(opt)
         self.num_layers = 2
         self.core = TopDownCore(opt)
-        
-# class vectorModel(AttModel):
-#     def __init__(self, opt):
-#         super(vectorModel, self).__init__(opt)
-#         # self.num_layers = 2
-#         self.core = vectorCore(opt)
 
 class StackAttModel(AttModel):
     def __init__(self, opt):
