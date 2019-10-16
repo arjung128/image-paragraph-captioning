@@ -64,12 +64,6 @@ class LanguageModelCriterion(nn.Module):
         output = torch.sum(output) / torch.sum(mask)
 
         return output
-    
-# class VectorCriterion(nn.Module):
-#     def __init__(self):
-#         super(VectorCriterion, self.__init__()
-    
-#     def forward(self, semantic_features, batch_vectors):
         
 
 def set_lr(optimizer, lr):

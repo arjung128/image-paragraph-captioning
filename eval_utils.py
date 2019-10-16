@@ -18,12 +18,9 @@ import misc.utils as utils
 def language_eval(dataset, preds, model_id, split):
     import sys
     sys.path.append("coco-caption")
-    # annFile = 'coco-caption/annotations/para_captions_val.json'
-    annFile = 'coco-caption/annotations/para_captions_test.json'
+    annFile = 'coco-caption/annotations/para_captions_val.json'
     from pycocotools.coco import COCO
     from pycocoevalcap.eval import COCOEvalCap
-
-    # encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 
     if not os.path.isdir('eval_results'):
         os.mkdir('eval_results')
@@ -60,10 +57,8 @@ def eval_split(model, crit, loader, eval_kwargs={}):
     verbose = eval_kwargs.get('verbose', True)
     verbose_beam = eval_kwargs.get('verbose_beam', 1)
     verbose_loss = eval_kwargs.get('verbose_loss', 1)
-    # num_images = eval_kwargs.get('num_images', eval_kwargs.get('val_images_use', -1))
-    num_images = 2489
-    # split = eval_kwargs.get('split', 'val')
-    split = 'test'
+    num_images = eval_kwargs.get('num_images', eval_kwargs.get('val_images_use', -1))
+    split = eval_kwargs.get('split', 'val')
     lang_eval = eval_kwargs.get('language_eval', 0)
     dataset = eval_kwargs.get('dataset', 'coco')
     beam_size = eval_kwargs.get('beam_size', 1)
@@ -123,9 +118,7 @@ def eval_split(model, crit, loader, eval_kwargs={}):
                 os.system(cmd)
 
             if verbose:
-                # filler code since commented print statement:
-                djffka = 1
-                # print('image %s: %s' %(entry['image_id'], entry['caption']))
+                print('image %s: %s' %(entry['image_id'], entry['caption']))
 
         # if we wrapped around the split or used up val imgs budget then bail
         ix0 = data['bounds']['it_pos_now']
@@ -136,9 +129,7 @@ def eval_split(model, crit, loader, eval_kwargs={}):
             predictions.pop()
 
         if verbose:
-            # filler code isnce commmented print statement:
-            sfdjaj = 1
-            # print('evaluating validation preformance... %d/%d (%f)' %(ix0 - 1, ix1, loss))
+            print('evaluating validation preformance... %d/%d (%f)' %(ix0 - 1, ix1, loss))
 
         if data['bounds']['wrapped']:
             break
