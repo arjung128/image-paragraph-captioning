@@ -19,8 +19,6 @@ import eval_utils
 import misc.utils as utils
 from misc.rewards import init_scorer, get_self_critical_reward
 
-print("Num of GPUs: " + str(torch.cuda.device_count()))
-
 try:
     import tensorboardX as tb
 except ImportError:
