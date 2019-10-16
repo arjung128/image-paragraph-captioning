@@ -61,36 +61,31 @@ def train(opt):
     ss_prob_history = histories.get('ss_prob_history', {})
     loader.iterators = infos.get('iterators', loader.iterators)
     loader.split_ix = infos.get('split_ix', loader.split_ix)
-    # print("loader.split_ix: " + str(loader.split_ix))
     if opt.load_best_score == 1:
         best_val_score = infos.get('best_val_score', None)
         
     # create model
     model = models.setup(opt).cuda()
     dp_model = torch.nn.DataParallel(model)
-    # if os.path.isfile("log_sc_vec/model.pth"):
-        # model_path = "log_sc_vec/model.pth"
-#     if os.path.isfile("alpha=0.1_log_sc_vec/model.pth"):
-#         model_path = "alpha=0.1_log_sc_vec/model.pth"
-    if os.path.isfile("alpha=0_log_sc/model.pth"):
-        model_path = "alpha=0_log_sc/model.pth"
+
+    # load model
+    if os.path.isfile("log_sc/model.pth"):
+        model_path = "log_sc/model.pth"
         state_dict = torch.load(model_path)
         dp_model.load_state_dict(state_dict)
-        # print("loaded model.")
+
     dp_model.train()
 
     # create/load vector model
     vectorModel = models.setup_vectorModel().cuda()
     dp_vectorModel = torch.nn.DataParallel(vectorModel)
-    # if os.path.isfile("log_sc_vec/model_vec.pth"):
-        # model_vec_path = "log_sc_vec/model_vec.pth"
-#     if os.path.isfile("alpha=0.1_log_sc_vec/model.pth"):
-#         model_path = "alpha=0.1_log_sc_vec/model.pth"
-    if os.path.isfile("alpha=0_log_sc/model_vec.pth"):
-        model_vec_path = "alpha=0_log_sc/model_vec.pth"
+
+    # load vector model
+    if os.path.isfile("log_sc/model_vec.pth"):
+        model_vec_path = "log_sc/model_vec.pth"
         state_dict_vec = torch.load(model_vec_path)
         dp_vectorModel.load_state_dict(state_dict_vec)
-        # print("loaded model_vec")
+
     dp_vectorModel.train()
 
     optimizer = utils.build_optimizer(list(model.parameters()) + list(vectorModel.parameters()), opt)
@@ -100,33 +95,10 @@ def train(opt):
     if vars(opt).get('start_from', None) is not None and os.path.isfile(os.path.join(opt.start_from,"optimizer.pth")):
         optimizer.load_state_dict(torch.load(os.path.join(opt.start_from, 'optimizer.pth')))
 
-    # Create model
-#     model = models.setup(opt).cuda()
-#     dp_model = torch.nn.DataParallel(model)
-#     model_path = "log_xe_vec/model.pth"
-#     state_dict = torch.load(model_path)
-#     dp_model.load_state_dict(state_dict)
-#     dp_model.train()
-    
-    # vectorModel
-#     vectorModel = models.setup_vectorModel(opt).cuda()
-#     dp_vectorModel = torch.nn.DataParallel(vectorModel)
-#     dp_vectorModel.train()
-
     # Loss function
     crit = utils.LanguageModelCriterion()
     rl_crit = utils.RewardCriterion()
-    # vec_crit = utils.VectorCriterion()
     vec_crit = nn.L1Loss()
-
-    # Optimizer and learning rate adjustment flag
-    # optimizer = utils.build_optimizer(model.parameters(), opt)
-#     optimizer = utils.build_optimizer(list(model.parameters()) + list(vectorModel.parameters()), opt)
-#     update_lr_flag = True
-
-    # Load the optimizer
-#     if vars(opt).get('start_from', None) is not None and os.path.isfile(os.path.join(opt.start_from,"optimizer.pth")):
-#         optimizer.load_state_dict(torch.load(os.path.join(opt.start_from, 'optimizer.pth')))
 
     # create idxs for doc2vec vectors
     with open('paragraphs_image_ids.txt', 'r') as file:
@@ -152,7 +124,6 @@ def train(opt):
         # Update learning rate once per epoch
         if update_lr_flag:
 
-            # print("UPDATING")
             # Assign the learning rate
             if epoch > opt.learning_rate_decay_start and opt.learning_rate_decay_start >= 0:
                 frac = (epoch - opt.learning_rate_decay_start) // opt.learning_rate_decay_every
@@ -183,9 +154,6 @@ def train(opt):
         data_time = time.time() - start
         start = time.time()
         
-        # print("data['att_feats'].shape", data['att_feats'].shape)
-        # print("data['fc_feats'].shape", data['fc_feats'].shape)
-        
         # pad data['att_feats'] axis=1 to have length = 83
         def pad_along_axis(array, target_length, axis=0):
 
@@ -210,55 +178,11 @@ def train(opt):
         tmp = [_ if _ is None else torch.from_numpy(_).cuda() for _ in tmp]
         fc_feats, att_feats, labels, masks, att_masks = tmp
         
-#         # create model
-#         model = models.setup(opt).cuda()
-#         dp_model = torch.nn.DataParallel(model)
-#         if os.path.isfile("log_sc_vec/model.pth"):
-#             model_path = "log_sc_vec/model.pth"
-#             state_dict = torch.load(model_path)
-#             dp_model.load_state_dict(state_dict)
-#             # print("loaded model.")
-#         dp_model.train()
-        
-#         # create/load vector model
-#         vectorModel = models.setup_vectorModel().cuda()
-#         dp_vectorModel = torch.nn.DataParallel(vectorModel)
-#         if os.path.isfile("log_sc_vec/model_vec.pth"):
-#             model_vec_path = "log_sc_vec/model_vec.pth"
-#             state_dict_vec = torch.load(model_vec_path)
-#             dp_vectorModel.load_state_dict(state_dict_vec)
-#             # print("loaded model_vec")
-#         dp_vectorModel.train()
-        
-#         optimizer = utils.build_optimizer(list(model.parameters()) + list(vectorModel.parameters()), opt)
-#         update_lr_flag = True
-
-#         # Load the optimizer
-#         if vars(opt).get('start_from', None) is not None and os.path.isfile(os.path.join(opt.start_from,"optimizer.pth")):
-#             optimizer.load_state_dict(torch.load(os.path.join(opt.start_from, 'optimizer.pth')))
-        
-        
-#         # create idxs for doc2vec vectors
-#         with open('paragraphs_image_ids.txt', 'r') as file:
-#             paragraph_image_ids = file.readlines()
-            
-#         paragraph_image_ids = [int(i) for i in paragraph_image_ids]
-        
         idx = []
         for element in data['infos']:
             idx.append(paragraph_image_ids.index(element['id']))
-            
-#         # select corresponding vectors
-#         with open('paragraphs_vectors.txt', 'r') as the_file:
-#             vectors = the_file.readlines()
         
-#         vectors_list = []
-#         for string in vectors:
-#             vectors_list.append([float(s) for s in string.split(' ')])
-            
-#         vectors_list_np = np.asarray(vectors_list)
-        
-        batch_vectors = vectors_list_np[idx] # MAY NEED TO CONVERT THIS NUMPY ARRAY INTO PYTORCH TENSOR
+        batch_vectors = vectors_list_np[idx] 
         
         # Forward pass and loss
         optimizer.zero_grad()
@@ -269,28 +193,19 @@ def train(opt):
             reward = get_self_critical_reward(dp_model, fc_feats, att_feats, att_masks, data, gen_result, opt)
             loss = rl_crit(sample_logprobs, gen_result.data, torch.from_numpy(reward).float().cuda())
             
-        # print("HERE!")
         att_feats_reshaped = att_feats.permute(0, 2, 1).cuda()
-        # print(att_feats_reshaped.shape)
-        # print(type(att_feats_reshaped))
-        # print(type(fc_feats))
         semantic_features = dp_vectorModel(att_feats_reshaped.cuda(), fc_feats) # (10, 2048)
-        # print(semantic_features.shape)
-        # print(type(semantic_features))
-        # print(type(batch_vectors))
         batch_vectors = torch.from_numpy(batch_vectors).float().cuda() # (10, 512)
-        # print(type(batch_vectors))
-        # print(batch_vectors.shape)
         vec_loss = vec_crit(semantic_features, batch_vectors)
-        alpha_ = 0.5
-        # loss = loss + (alpha_*vec_loss)
+        alpha_ = 1
+        loss = loss + (alpha_*vec_loss)
 
         # Backward pass
-        # loss.backward()
-        # utils.clip_gradient(optimizer, opt.grad_clip)
-        # optimizer.step()
-        # train_loss = loss.item()
-        # torch.cuda.synchronize()
+        loss.backward()
+        utils.clip_gradient(optimizer, opt.grad_clip)
+        optimizer.step()
+        train_loss = loss.item()
+        torch.cuda.synchronize()
 
         # Print 
         total_time = time.time() - start
@@ -319,34 +234,8 @@ def train(opt):
             loss_history[iteration] = train_loss if not sc_flag else np.mean(reward[:,0])
             lr_history[iteration] = opt.current_lr
             ss_prob_history[iteration] = model.ss_prob
-            
-#         # Evaluate model
-#         print("--------------------------------------------------------")
-#         print("--------------------EVALUATING MODEL--------------------")
-#         print("--------------------------------------------------------")
-#         eval_kwargs = {'split': 'val',
-#                         'dataset': opt.input_json}
-#         eval_kwargs.update(vars(opt))
-#         val_loss, predictions, lang_stats = eval_utils.eval_split(dp_model, crit, loader, eval_kwargs)
-#         print("--------------------------------------------------------")
-#         print("--------------------EVALUATING MODEL--------------------")
-#         print("--------------------------------------------------------")
-
-#         # save models
-#         checkpoint_path = os.path.join(opt.checkpoint_path, 'model.pth')
-#         torch.save(dp_model.state_dict(), checkpoint_path)
-#         # print("model saved to {}".format(checkpoint_path))
-
-#         checkpoint_path = os.path.join(opt.checkpoint_path, 'model_vec.pth')
-#         torch.save(dp_vectorModel.state_dict(), checkpoint_path)
-#         # print("model_vec saved to {}".format(checkpoint_path))
-
-#         optimizer_path = os.path.join(opt.checkpoint_path, 'optimizer.pth')
-#         torch.save(optimizer.state_dict(), optimizer_path)
 
         # Validate and save model 
-        # if (iteration % opt.save_checkpoint_every == 0):
-        # if iteration % opt.print_freq == 1:
         if True:
 
             # Evaluate model
@@ -384,7 +273,6 @@ def train(opt):
 
             optimizer_path = os.path.join(opt.checkpoint_path, 'optimizer.pth')
             torch.save(optimizer.state_dict(), optimizer_path)
-            
             
             # Dump miscalleous informations
             infos['iter'] = iteration
@@ -425,6 +313,4 @@ def train(opt):
             break
 
 opt = opts.parse_opt()
-print(type(opt))
-print(opt)
 train(opt)
